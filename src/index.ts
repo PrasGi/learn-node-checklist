@@ -1,12 +1,26 @@
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, { Application } from "express";
+import { routes } from "./routes";
+import { logger } from "./utils/logger";
+import bodyParser from "body-parser";
+import cors from "cors";
+import "./utils/connectDB"; // connect to db autopmaticly
 
 const app: Application = express();
 const port: Number = 4000;
 
-app.use("/", (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).send({
-    data: "hello world",
-  });
+// parse body request
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// cors access handler
+app.use(cors());
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "*");
+  next();
 });
 
-app.listen(port, () => console.log("server listening on port " + port));
+routes(app);
+
+app.listen(port, () => logger.info("server listening on port " + port));
